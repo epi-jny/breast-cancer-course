@@ -16,6 +16,7 @@ GPU complet, et qui clone automatiquement les deux dépôts externes utilisés
 
 | # | Notebook | Sujet | GPU |
 |---|----------|-------|-----|
+| 1 | `notebooks/01_download_data.ipynb` | **Télécharger les données RSNA via la clé Kaggle** (prérequis aux ch. 2.5→5) | non |
 | 2 | `notebooks/02_pytorch_basics.ipynb` | PyTorch de base : tenseurs, autograd, un réseau de vision simple | non (CPU OK) |
 | 2.5 | `notebooks/02.5_preprocessing.ipynb` | Pré-traitement des mammographies : DICOM → PNG, crop, conversions qui libèrent le CPU (ne laisser que le décodage) | recommandé |
 | 3 | `notebooks/03_resnet18_breast_density.ipynb` | Entraînement multiclasse avec un réseau connu (ResNet-18) — cas d'usage : **densité mammaire** | oui |
@@ -67,6 +68,10 @@ ssh -L 8888:localhost:8888 <votre-alias-vm>
 
 Le kernel Jupyter (donc les entraînements) s'exécute **dans le conteneur sur la
 VM**, avec le GPU. Le tunnel SSH ne transporte que l'interface web.
+
+Une fois dans JupyterLab, commencez par **`notebooks/01_download_data.ipynb`**
+pour récupérer le jeu RSNA via la clé Kaggle, puis suivez les chapitres dans
+l'ordre.
 
 ---
 
