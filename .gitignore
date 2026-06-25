@@ -1,0 +1,21 @@
+# Secrets / config locale
+.env
+.kaggle/
+
+# Données (jamais versionnées)
+data/
+*.pkl
+*.npz
+*.p
+
+# Sorties de notebooks volumineuses / checkpoints
+*.pt
+*.pth
+runs/
+checkpoints/
+
+# Jupyter / Python
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.venv/
