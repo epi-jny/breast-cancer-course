@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# Lance JupyterLab dans le conteneur, sur le GPU, avec le DÉPÔT entier monté.
-# JupyterLab écoute sur 127.0.0.1:8888 de la machine hôte (la VM).
-# Depuis le laptop : ssh -L 8888:localhost:8888 <alias-vm>  puis  http://localhost:8888
+# Lance JupyterLab dans le conteneur, avec le DÉPÔT entier monté.
+# JupyterLab écoute sur 127.0.0.1:8888 de la machine hôte ; token désactivé.
+#   - EN LOCAL (ta machine) : ouvre simplement http://localhost:8888 dans le navigateur.
+#   - VM DISTANTE : d'abord  ssh -L 8888:localhost:8888 <alias-vm>  puis http://localhost:8888
+#
+# Sans GPU utilisable par Docker (ex. machine perso) :  NO_GPU=1 ./docker-run.sh
+# (les chapitres CPU — 2 et 6 — tournent ; les entraînements GPU non).
 #
 # Aucun chemin n'est codé en dur : tout part de l'endroit où ce script (donc le
 # dépôt) a été cloné. On NE dépend PAS de $HOME.
@@ -36,10 +40,15 @@ if [ ! -f "$REPO_DIR/.kaggle/access_token" ] && [ ! -f "$REPO_DIR/.kaggle/kaggle
     echo "     sinon le téléchargement (ch1) échouera." >&2
 fi
 
+# GPU : activé par défaut. NO_GPU=1 pour s'en passer (machine sans --gpus utilisable).
+GPU_ARGS=(--gpus all)
+[ "${NO_GPU:-}" = "1" ] && { GPU_ARGS=(); echo ">> NO_GPU=1 : conteneur lancé SANS GPU (chapitres CPU seulement)."; }
+
 echo "Montage du dépôt : $REPO_DIR -> $COURSE_MNT"
+echo ">> Une fois démarré, ouvre http://localhost:8888 dans ton navigateur (token désactivé)."
 
 docker run --rm -it \
-    --gpus all \
+    "${GPU_ARGS[@]}" \
     -p 127.0.0.1:8888:8888 \
     -v "$REPO_DIR":"$COURSE_MNT" \
     "${KAGGLE_ARGS[@]}" \

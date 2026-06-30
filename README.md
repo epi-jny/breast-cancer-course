@@ -68,7 +68,9 @@ contient que l'environnement Python/CUDA.
 ## Prérequis (à régler **avant** de construire l'image)
 
 1. **Une machine avec un GPU NVIDIA** + pilotes, `docker`, et le
-   `nvidia-container-toolkit` (pour `docker run --gpus all`).
+   `nvidia-container-toolkit` (pour `docker run --gpus all`). *Sans GPU utilisable par
+   Docker* (machine perso), lance `NO_GPU=1 ./docker-run.sh` : les chapitres CPU (2 et 6)
+   tournent, les entraînements GPU (2.5→5) non.
 2. **Accès au démon Docker** : votre utilisateur doit pouvoir lancer `docker`
    (membre du groupe `docker`, ou `sudo docker`, ou Docker rootless).
 3. **Une clé d'API Kaggle** (pour télécharger le jeu RSNA). Voir
@@ -93,21 +95,27 @@ cd data-capsule-deep-piste
 git submodule update --init --recursive
 
 # 2. Configurer Kaggle (voir section dédiée) — une seule fois
-#    => place ton token (access_token) dans le dossier .kaggle/ à la racine du dépôt
+#    => crée .kaggle/access_token depuis le gabarit et colle ton token KGAT_ dedans :
+cp .kaggle/access_token.example .kaggle/access_token   # puis édite-le
 
 # 3. Construire l'image (env GPU + deps via uv ; reprend l'UID/GID de l'utilisateur courant)
 ./docker-build.sh          # docker build --build-arg HOST_UID=... --build-arg HOST_GID=... -t ...
 
-# 4. Lancer JupyterLab dans le conteneur (GPU + volumes montés)
-./docker-run.sh            # écoute sur 127.0.0.1:8888 DANS la VM
+# 4. Lancer JupyterLab dans le conteneur (volumes montés)
+./docker-run.sh            # écoute sur 127.0.0.1:8888 ; affiche l'URL à ouvrir
+#    -> sans GPU utilisable par Docker (machine perso) :  NO_GPU=1 ./docker-run.sh
 
-# 5. Depuis votre laptop, ouvrir un tunnel SSH vers la VM puis le navigateur
+# 5a. EN LOCAL (ta machine) : ouvre directement
+#     http://localhost:8888  dans ton navigateur (token désactivé, pas de tunnel).
+
+# 5b. VM DISTANTE : ouvre d'abord un tunnel SSH, puis le navigateur
 ssh -L 8888:localhost:8888 <votre-alias-vm>
 #    puis ouvrir http://localhost:8888 dans le navigateur du laptop
 ```
 
-Le kernel Jupyter (donc les entraînements) s'exécute **dans le conteneur sur la
-VM**, avec le GPU. Le tunnel SSH ne transporte que l'interface web.
+Le kernel Jupyter (donc les entraînements) s'exécute **dans le conteneur**, sur le GPU
+si disponible. En local tu accèdes directement à `localhost:8888` ; sur une VM distante,
+le tunnel SSH ne transporte que l'interface web.
 
 Une fois dans JupyterLab, commencez par **`notebooks/01_download_data.ipynb`**
 pour récupérer le jeu RSNA via la clé Kaggle, puis suivez les chapitres dans
