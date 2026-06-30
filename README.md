@@ -121,18 +121,22 @@ Les notebooks téléchargent le jeu RSNA via l'API Kaggle. Les identifiants se p
 **à la racine du dépôt** (jamais dans l'image, et ignorés par git), montés en lecture
 seule dans le conteneur.
 
-Le dossier **`.kaggle/` existe déjà dans le dépôt** (vide ; voir `.kaggle/.gitignore`) :
-il suffit d'y déposer ton **token**.
+Le dossier **`.kaggle/` existe déjà dans le dépôt**, avec un gabarit
+**`.kaggle/access_token.example`**. Il suffit d'en faire une copie nommée `access_token`
+et d'y coller ton token.
 
-1. Sur [kaggle.com](https://www.kaggle.com) → *Settings* → *Create New Token* → télécharge
-   le fichier **`access_token`** (son contenu commence par `KGAT_`).
-2. Copie-le dans le dossier `.kaggle/` à la racine du dépôt cloné :
+1. Sur [kaggle.com](https://www.kaggle.com) → *Settings* → *Create New Token* :
+   tu obtiens un token qui commence par **`KGAT_`**.
+2. À la racine du dépôt cloné, crée `.kaggle/access_token` depuis le gabarit, puis colle
+   ton token dedans (remplace le placeholder, le fichier doit contenir **uniquement** le token) :
    ```bash
-   mv ~/Downloads/access_token .kaggle/access_token
+   cp .kaggle/access_token.example .kaggle/access_token
+   nano .kaggle/access_token       # colle ton token KGAT_... (rien d'autre)
    chmod 600 .kaggle/access_token
    ```
-   Le token est ignoré par git (jamais committé).
-3. `docker-run.sh` monte `<dépôt>/.kaggle` → `~/.kaggle` dans le conteneur automatiquement.
+   `access_token` est ignoré par git (jamais committé) ; seul `access_token.example` est versionné.
+3. `docker-run.sh` monte `<dépôt>/.kaggle` → `~/.kaggle` dans le conteneur automatiquement,
+   et le **notebook 1** lit ce token.
 
 > **Pourquoi `access_token` et pas `kaggle.json` ?** Les tokens Kaggle récents (préfixe
 > `KGAT_`) ne fonctionnent qu'avec `kaggle` ≥ 2.x **via `access_token`**. L'ancien
@@ -177,7 +181,7 @@ data-capsule-deep-piste/
 ├── docker-build.sh        # construit l'image
 ├── docker-run.sh          # lance JupyterLab (GPU + volumes)
 ├── .gitmodules            # déclare les 2 sous-modules
-├── .kaggle/                # dépose ici ton token Kaggle (access_token) — présent, clé ignorée par git
+├── .kaggle/                # token Kaggle : copie access_token.example -> access_token (clé ignorée par git)
 ├── data/                  # données — vide dans git, contenu ignoré (data/.gitignore)
 │   ├── in/                #   entrées brutes téléchargées (RSNA, échantillon, CIFAR)
 │   └── work/              #   sorties produites (prétraitements, crops, checkpoints)

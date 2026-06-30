@@ -6,5 +6,8 @@
 # Ce dossier est versionné (présent dans le dépôt) mais son CONTENU est ignoré :
 # aucune clé n'est jamais committée. docker-run.sh le monte en lecture seule sur
 # /home/deep-piste/.kaggle dans le conteneur (le notebook 1 y lit le token).
+#
+# Pour démarrer :  cp access_token.example access_token  puis colle ton token dedans.
 *
 !.gitignore
+!access_token.example
