@@ -171,6 +171,47 @@ dur** : ils passent par `course_utils.course_root()` (qui lit `COURSE_ROOT`), d'
 
 ---
 
+## Permissions : conteneur non-root vs hôte root
+
+Le conteneur tourne **toujours en utilisateur non-root** (`deep-piste`, dont l'UID est
+celui de la personne qui a fait le build — ou `1000` si le build est lancé en root).
+On ne le lance **jamais** en root, par principe de moindre privilège. En contrepartie,
+pour qu'il puisse écrire dans le dépôt monté (`data/`, autosave des notebooks…),
+**les fichiers de l'hôte doivent appartenir au même UID** que cet utilisateur.
+
+Si tu **opères en root sur l'hôte** (typique sous WSL), le dépôt cloné appartient à
+`root` (UID 0). Le conteneur (UID 1000) ne peut alors pas y écrire — le notebook 1
+échoue par exemple sur :
+
+```
+PermissionError: [Errno 13] Permission denied: '/home/deep-piste/course/data/in/rsna'
+```
+
+### Résoudre
+
+**Le plus simple — opérer en utilisateur non-root.** Clone et builds avec un compte
+normal (UID 1000) : son UID correspond à celui du conteneur, tout s'aligne, aucun conflit.
+
+**Si tu dois rester root sur l'hôte —** aligne le propriétaire du dépôt sur l'UID du
+conteneur :
+
+```bash
+# 1. UID réel du conteneur (normalement 1000)
+docker run --rm breast-cancer-course:latest id -u
+
+# 2. Donner le dépôt à cet UID (remplace 1000 par la valeur ci-dessus si différente)
+chown -R 1000:1000 /chemin/vers/data-capsule-deep-piste
+
+# 3. git en root sur un dépôt possédé par 1000 -> éviter le warning « dubious ownership »
+git config --global --add safe.directory /chemin/vers/data-capsule-deep-piste
+```
+
+Puis relance `./docker-run.sh`. ⚠️ Tout fichier recréé **en root** ensuite (`git pull`,
+nouveau `git clone`…) repassera à `root:root` et recassera l'écriture → refais le
+`chown`, ou — mieux — travaille en utilisateur non-root.
+
+---
+
 ## Structure du dépôt
 
 ```
