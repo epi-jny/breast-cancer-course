@@ -22,20 +22,18 @@ if [ ! -f modules/GMIC/models/sample_model_1.p ]; then
     git submodule update --init --recursive
 fi
 
-# Identifiants Kaggle, relatifs au dépôt (jamais via $HOME) :
-#  - le dossier .kaggle/ (versionné dans le dépôt) où l'utilisateur dépose kaggle.json,
-#    monté en lecture seule sur /home/deep-piste/.kaggle ;
-#  - ou un fichier .env (KAGGLE_USERNAME / KAGGLE_KEY).
-# La clé et le .env sont ignorés par git.
+# Identifiants Kaggle, relatifs au dépôt (jamais via $HOME) : le dossier .kaggle/
+# (versionné dans le dépôt) où l'utilisateur dépose son token, monté en lecture seule
+# sur /home/deep-piste/.kaggle. La clé est ignorée par git.
+#   - access_token : token récent KGAT_ (recommandé ; le seul qui marche avec kaggle 2.x)
+#   - kaggle.json  : ancien format username + key
 mkdir -p "$REPO_DIR/.kaggle"
 KAGGLE_ARGS=(-v "$REPO_DIR/.kaggle":/home/deep-piste/.kaggle:ro)
 
-ENV_ARGS=()
-[ -f "$REPO_DIR/.env" ] && ENV_ARGS+=(--env-file "$REPO_DIR/.env")
-
-if [ ! -f "$REPO_DIR/.kaggle/kaggle.json" ] && [ ${#ENV_ARGS[@]} -eq 0 ]; then
-    echo "AVERTISSEMENT : $REPO_DIR/.kaggle/kaggle.json absent et pas de .env" >&2
-    echo "  -> dépose ta clé Kaggle dans .kaggle/kaggle.json, sinon le téléchargement (ch1) échouera." >&2
+if [ ! -f "$REPO_DIR/.kaggle/access_token" ] && [ ! -f "$REPO_DIR/.kaggle/kaggle.json" ]; then
+    echo "AVERTISSEMENT : aucun identifiant Kaggle dans $REPO_DIR/.kaggle/" >&2
+    echo "  -> dépose ton token dans .kaggle/access_token (recommandé) ou un kaggle.json," >&2
+    echo "     sinon le téléchargement (ch1) échouera." >&2
 fi
 
 echo "Montage du dépôt : $REPO_DIR -> $COURSE_MNT"
@@ -45,5 +43,4 @@ docker run --rm -it \
     -p 127.0.0.1:8888:8888 \
     -v "$REPO_DIR":"$COURSE_MNT" \
     "${KAGGLE_ARGS[@]}" \
-    "${ENV_ARGS[@]}" \
     "$IMAGE"

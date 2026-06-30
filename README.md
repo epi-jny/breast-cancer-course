@@ -28,7 +28,7 @@ flowchart LR
             mNb["notebooks/"]
             mMod["modules/GMIC + modules/selective-classification\n(sous-modules)"]
             mData["data/in (téléchargements) + data/work (prétraitements) — ignoré par git"]
-            mKag[".kaggle/ ou .env  (clé API)"]
+            mKag[".kaggle/  (token API : access_token)"]
         end
         vmport --> container
         subgraph container["🐳 Conteneur (run en tant que deep-piste, UID du builder)"]
@@ -93,7 +93,7 @@ cd data-capsule-deep-piste
 git submodule update --init --recursive
 
 # 2. Configurer Kaggle (voir section dédiée) — une seule fois
-#    => place kaggle.json dans .kaggle/ à la racine du dépôt (ou renseigne .env)
+#    => place ton token (access_token) dans le dossier .kaggle/ à la racine du dépôt
 
 # 3. Construire l'image (env GPU + deps via uv ; reprend l'UID/GID de l'utilisateur courant)
 ./docker-build.sh          # docker build --build-arg HOST_UID=... --build-arg HOST_GID=... -t ...
@@ -122,20 +122,22 @@ Les notebooks téléchargent le jeu RSNA via l'API Kaggle. Les identifiants se p
 seule dans le conteneur.
 
 Le dossier **`.kaggle/` existe déjà dans le dépôt** (vide ; voir `.kaggle/.gitignore`) :
-il suffit d'y déposer la clé.
+il suffit d'y déposer ton **token**.
 
-1. Sur [kaggle.com](https://www.kaggle.com) → *Account* → *Create New API Token*
-   → télécharge `kaggle.json`.
+1. Sur [kaggle.com](https://www.kaggle.com) → *Settings* → *Create New Token* → télécharge
+   le fichier **`access_token`** (son contenu commence par `KGAT_`).
 2. Copie-le dans le dossier `.kaggle/` à la racine du dépôt cloné :
    ```bash
-   mv ~/Downloads/kaggle.json .kaggle/kaggle.json
-   chmod 600 .kaggle/kaggle.json
+   mv ~/Downloads/access_token .kaggle/access_token
+   chmod 600 .kaggle/access_token
    ```
-   La clé est ignorée par git (jamais committée).
+   Le token est ignoré par git (jamais committé).
 3. `docker-run.sh` monte `<dépôt>/.kaggle` → `~/.kaggle` dans le conteneur automatiquement.
 
-Vous pouvez aussi copier `.env.example` en `.env` (à la racine du dépôt) et y mettre
-`KAGGLE_USERNAME`/`KAGGLE_KEY` (lus au `docker run` via `--env-file`).
+> **Pourquoi `access_token` et pas `kaggle.json` ?** Les tokens Kaggle récents (préfixe
+> `KGAT_`) ne fonctionnent qu'avec `kaggle` ≥ 2.x **via `access_token`**. L'ancien
+> `kaggle.json` (username + key) renvoie une **401** avec ces tokens. L'image installe
+> `kaggle` 2.x ; `kaggle.json` reste accepté en repli si tu as encore une clé à l'ancien format.
 
 ---
 
@@ -157,7 +159,7 @@ le dépôt entier — plus les identifiants Kaggle :
 | Hôte | Conteneur | Rôle |
 |------|-----------|------|
 | `<dépôt>` (= `$REPO_DIR`) | `/home/deep-piste/course` (= `COURSE_ROOT`) | tout le cours : `notebooks/`, `modules/GMIC` + `modules/selective-classification`, `data/` |
-| `<dépôt>/.kaggle` | `/home/deep-piste/.kaggle` (ro) | identifiants Kaggle (sinon `.env` via `--env-file`) |
+| `<dépôt>/.kaggle` | `/home/deep-piste/.kaggle` (ro) | token Kaggle (`access_token`, ou `kaggle.json` en repli) |
 
 Comme tout vit sous `COURSE_ROOT`, les notebooks ne référencent **aucun chemin en
 dur** : ils passent par `course_utils.course_root()` (qui lit `COURSE_ROOT`), d'où
@@ -174,9 +176,8 @@ data-capsule-deep-piste/
 ├── pyproject.toml         # dépendances Python des 6 chapitres (installées via uv)
 ├── docker-build.sh        # construit l'image
 ├── docker-run.sh          # lance JupyterLab (GPU + volumes)
-├── .env.example           # gabarit pour les identifiants Kaggle (alternative à .kaggle/)
 ├── .gitmodules            # déclare les 2 sous-modules
-├── .kaggle/                # dépose ici kaggle.json (présent, clé ignorée par git)
+├── .kaggle/                # dépose ici ton token Kaggle (access_token) — présent, clé ignorée par git
 ├── data/                  # données — vide dans git, contenu ignoré (data/.gitignore)
 │   ├── in/                #   entrées brutes téléchargées (RSNA, échantillon, CIFAR)
 │   └── work/              #   sorties produites (prétraitements, crops, checkpoints)
