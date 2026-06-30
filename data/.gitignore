@@ -1,5 +1,9 @@
-# Le dossier data/ existe dans le dépôt (point de montage du volume Docker),
-# mais son CONTENU n'est JAMAIS versionné : images RSNA (~300 Go), prétraitements,
-# checkpoints, etc. On ignore tout sauf ce fichier .gitignore lui-même.
+# data/ existe dans le dépôt (point de montage du volume), mais son CONTENU n'est
+# JAMAIS versionné. Deux sous-dossiers conventionnels, présents mais vides côté git :
+#   in/   : données brutes en ENTRÉE (téléchargements : RSNA, échantillon, CIFAR)
+#   work/ : tout ce qui est PRODUIT (prétraitements, crops, checkpoints, runs)
+# On ignore tout, sauf ce fichier et les .gitignore des sous-dossiers in/ et work/.
 *
 !.gitignore
+!in
+!work

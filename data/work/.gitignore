@@ -1,0 +1,4 @@
+# Sorties PRODUITES par les notebooks (prétraitements, crops, checkpoints, runs…).
+# Contenu jamais versionné ; ce fichier garde juste le dossier présent.
+*
+!.gitignore

@@ -34,6 +34,16 @@ def data_path(*parts):
     return os.path.join(course_root(), "data", *parts)
 
 
+def data_in(*parts):
+    """Données brutes en ENTRÉE : `<repo>/data/in/...` (téléchargements RSNA, CIFAR…)."""
+    return data_path("in", *parts)
+
+
+def data_work(*parts):
+    """Sorties PRODUITES : `<repo>/data/work/...` (prétraitements, crops, checkpoints…)."""
+    return data_path("work", *parts)
+
+
 def gmic_dir():
     """Sous-module GMIC : `<repo>/modules/GMIC`."""
     return os.path.join(course_root(), "modules", "GMIC")

@@ -1,0 +1,4 @@
+# Données brutes en ENTRÉE (téléchargées : RSNA, échantillon, CIFAR…).
+# Contenu jamais versionné ; ce fichier garde juste le dossier présent.
+*
+!.gitignore

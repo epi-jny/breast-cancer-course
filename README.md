@@ -27,7 +27,7 @@ flowchart LR
         subgraph repo["📁 dépôt cloné = $REPO_DIR (où qu'il soit)"]
             mNb["notebooks/"]
             mMod["modules/GMIC + modules/selective-classification\n(sous-modules)"]
-            mData["data/  (RSNA, prétraitements — ignoré par git)"]
+            mData["data/in (téléchargements) + data/work (prétraitements) — ignoré par git"]
             mKag[".kaggle/ ou .env  (clé API)"]
         end
         vmport --> container
@@ -77,7 +77,9 @@ contient que l'environnement Python/CUDA.
 
 Les données RSNA (~300 Go) ne sont **jamais** dans l'image : elles sont
 téléchargées par les notebooks dans `data/` **à la racine du dépôt** (ignoré par
-git), donc elles persistent entre deux `docker run`.
+git), donc elles persistent entre deux `docker run`. Convention : `data/in/` pour les
+**entrées brutes** (téléchargements) et `data/work/` pour les **sorties produites**
+(prétraitements, crops, checkpoints).
 
 ---
 
@@ -170,7 +172,8 @@ data-capsule-deep-piste/
 ├── .env.example           # gabarit pour les identifiants Kaggle
 ├── .gitmodules            # déclare les 2 sous-modules
 ├── data/                  # données — vide dans git, contenu ignoré (data/.gitignore)
-│   └── .gitignore         #   garde le dossier présent, ignore tout le reste
+│   ├── in/                #   entrées brutes téléchargées (RSNA, échantillon, CIFAR)
+│   └── work/              #   sorties produites (prétraitements, crops, checkpoints)
 ├── modules/               # sous-modules git
 │   ├── GMIC/              #   → nyukat/GMIC (+ 5 poids pré-entraînés)
 │   └── selective-classification/   # → EmilienJemelen/selective-classification
